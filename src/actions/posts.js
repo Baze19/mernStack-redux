@@ -28,9 +28,9 @@ export const createPost = (post)=> async (dispatch) => {
     }
 }
 
-export const updatedPost  = (id,post) => async (dispatch) =>{
+export const updatedPost  = (id,post) => async (dispatch) => {
     try {
-        const {data} = await api.updatePost(id,post);
+        const {data} = await api.updatedpost(id,post);
         dispatch({
             type:UPDATE,
             payload:data
@@ -41,14 +41,14 @@ export const updatedPost  = (id,post) => async (dispatch) =>{
     }
 }
 
-export const deletedPost  = (id) => async (dispatch) =>{
+export const deletedPost  = (id,history) => async (dispatch) =>{
     try {
          await api.deletePost(id)
         dispatch({
             type:DELETE,
             payload:id
         })
-
+        history.push('/')
     } catch (error) {
         console.log(error)
     }

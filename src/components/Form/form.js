@@ -8,45 +8,67 @@ import { useSelector } from 'react-redux'
 
 
 const Form = ({ currentId, setcurrentId }) => {
-       
+
         const dispatch = useDispatch();
         const [postData, setpostData] = useState({
-                creator: '', title: '', message: '', tags: '', selectedFile: ''
+                title: '', message: '', tags: '', selectedFile: ''
         })
+        const loggedInUser = JSON.parse(localStorage.getItem('Profile'))
+       
+
+        
 
         const singlePost = useSelector((state) => currentId ? state.posts.find((f) => f._id === currentId) : null)
         useEffect(() => {
                 if (singlePost) setpostData(singlePost)
-                console.log(singlePost,'post')
+
         }, [singlePost])
         // const singlePost = 
         const classes = useStyles()
-        const handleSubmit = (e) => {
-                e.preventDefault()
-                if (currentId) {
-                        dispatch(updatedPost(currentId, postData))
-                }
-                dispatch(createPost(postData))
-
-                clear()
-        }
-
+       
         const clear = (e) => {
-                setcurrentId(null)
-        setpostData({creator:'',title:'',tags:'',message:'' ,selectedFile:''})
+                setcurrentId(0)
+                setpostData({ title: '', tags: '', message: '', selectedFile: '' })
         }
+
+        const handleSubmit = async (e) => {
+                e.preventDefault();
+
+                if (!currentId) {
+
+                        dispatch(createPost({ ...postData, name: loggedInUser?.result?.name }));
+                        
+                } else {
+                        
+                        dispatch(updatedPost(currentId, { ...postData, name: loggedInUser?.result?.name }));
+                        
+                }
+
+              
+        };
+
+       
+
+        if (!loggedInUser?.result?.name) {
+                
+                return (
+                        
+                        <Paper className={classes.paper}>
+                                <Typography variant="h6" align="center">
+                                        Please log in or sign up to create a memory and like other's memory
+                                </Typography>
+                        </Paper>
+                )
+
+        }
+
+
+     
         return (
                 <Paper className={classes.paper}>
                         <form className={`${classes.root} ${classes.form}`} autoComplete="off" noValidate onSubmit={handleSubmit}>
-                                <Typography variant="h6">{ currentId ? 'Editing Memomry' : 'Creating a memory'}</Typography>
-                                <TextField name="creator"
-                                        variant="outlined"
-                                        label="Creator"
-                                        fullWidth
-                                        value={postData.creator}
-                                        onChange={(e) => setpostData({ ...postData, creator: e.target.value })}>
+                                <Typography variant="h6">{currentId ? 'Editing Memomry' : 'Creating a memory'}</Typography>
 
-                                </TextField>
                                 <TextField
                                         name="title"
                                         variant="outlined"
@@ -72,7 +94,7 @@ const Form = ({ currentId, setcurrentId }) => {
                                         label="tags"
                                         fullWidth
                                         value={postData.tags}
-                                        onChange={(e) => setpostData({ ...postData, tags: e.target.value.split(', ') })}>
+                                        onChange={(e) => setpostData({ ...postData, tags: e.target.value.split(" ,") })}>
 
                                 </TextField>
                                 <div className={classes.fileInput}>
